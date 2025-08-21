@@ -1,5 +1,4 @@
 import { getDocument } from "pdfjs-dist/legacy/build/pdf"
-import { createWorker } from "tesseract.js"
 import type { ParsedStatement, PDFType, Txn, StatementHeader } from "./types"
 import type { ImageData } from "canvas"
 
@@ -66,11 +65,11 @@ async function extractFullDocumentText(buffer: Buffer): Promise<{
       throw new Error("Buffer is empty")
     }
 
+    const uint8Array = new Uint8Array(buffer)
+    console.log("[v0] Using Uint8Array length:", uint8Array.length, "type:", uint8Array.constructor.name)
+
     const pdf = await getDocument({
-      data: buffer,
-      standardFontDataUrl: "https://unpkg.com/pdfjs-dist@3.11.174/standard_fonts/",
-      cMapUrl: "https://unpkg.com/pdfjs-dist@3.11.174/cmaps/",
-      cMapPacked: true,
+      data: uint8Array,
     }).promise
 
     console.log("[v0] PDF loaded successfully, pages:", pdf.numPages)
@@ -181,6 +180,10 @@ function detectReadability(text: string, diagnostics: any): PDFType {
 }
 
 async function extractTextWithOCR(buffer: Buffer): Promise<string> {
+  console.log("[v0] OCR is disabled for MVP - focusing on text-based PDFs first")
+  throw new Error("OCR is currently disabled for MVP. Please use text-based PDFs only.")
+
+  /*
   try {
     console.log("[v0] Starting OCR extraction...")
 
@@ -210,10 +213,19 @@ async function extractTextWithOCR(buffer: Buffer): Promise<string> {
     console.error("[v0] OCR extraction failed:", error)
     throw new Error("OCR processing failed. The scanned document may be too unclear to read.")
   }
+  */
 }
 
 async function convertPdfToImages(buffer: Buffer): Promise<ImageData[]> {
-  const pdf = await getDocument({ data: buffer }).promise
+  const uint8Array = new Uint8Array(buffer)
+  console.log(
+    "[v0] convertPdfToImages using Uint8Array length:",
+    uint8Array.length,
+    "type:",
+    uint8Array.constructor.name,
+  )
+
+  const pdf = await getDocument({ data: uint8Array }).promise
   const images: ImageData[] = []
 
   for (let i = 1; i <= pdf.numPages; i++) {
