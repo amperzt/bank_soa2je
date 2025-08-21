@@ -1,6 +1,8 @@
-import { getDocument } from "pdfjs-dist/legacy/build/pdf"
+import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf"
 import type { ParsedStatement, PDFType, Txn, StatementHeader } from "./types"
 import type { ImageData } from "canvas"
+
+GlobalWorkerOptions.workerSrc = ""
 
 export async function parsePdf(buffer: Buffer): Promise<ParsedStatement> {
   try {
